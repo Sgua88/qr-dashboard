@@ -1,0 +1,15 @@
+{
+  "name": "qr-dashboard-finale-moderna-sezioni",
+  "version": "1.0.0",
+  "description": "QR Manager moderno responsive con sezioni separate",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3",
+    "sql.js": "^1.10.3",
+    "jsqr": "^1.4.0"
+  }
+}

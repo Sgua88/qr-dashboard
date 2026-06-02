@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QR Manager</title>
+  <script src="/jsQR.js"></script>
+  <style>
+    :root{
+      --bg:#f6f8fc; --panel:#ffffff; --text:#111827; --muted:#667085; --line:#e6eaf2;
+      --nav:#071633; --nav2:#0c1f49; --blue:#4f63ff; --blue2:#6d5dfc; --green:#22c55e;
+      --orange:#f59e0b; --red:#ef4444; --shadow:0 18px 45px rgba(15,23,42,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .app{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+    .sidebar{background:linear-gradient(180deg,#071633,#061128);color:white;padding:24px 16px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh}
+    .brand{display:flex;align-items:center;gap:12px;padding:0 10px 24px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .logo{font-size:32px;line-height:1}
+    .brand h1{margin:0;font-size:24px}.brand p{margin:4px 0 0;font-size:12px;color:#aab6d3}
+    .nav{display:flex;flex-direction:column;gap:8px}.nav a{color:#dbe5ff;text-decoration:none;padding:14px 15px;border-radius:12px;display:flex;gap:12px;align-items:center;font-weight:700;font-size:15px}
+    .nav a:hover,.nav a.active{background:linear-gradient(135deg,rgba(79,99,255,.9),rgba(109,93,252,.55));color:white}
+    .side-footer{margin-top:auto;display:grid;gap:10px}
+    .userbox,.themebox{border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px;background:rgba(255,255,255,.04)}
+    .main{min-width:0}.topbar{height:88px;background:rgba(255,255,255,.82);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:20}
+    .hamb{display:none;border:0;background:white;border-radius:12px;padding:10px 12px;font-size:20px;box-shadow:0 8px 20px rgba(15,23,42,.08)}
+    .page-title h2{font-size:25px;margin:0}.page-title p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .top-actions{display:flex;gap:14px;align-items:center;color:#344054}.top-chip{background:white;border:1px solid var(--line);border-radius:14px;padding:10px 13px;box-shadow:0 10px 25px rgba(15,23,42,.04);font-size:13px}
+    .content{padding:28px 30px 40px}.page-section{display:none}.page-section.active{display:block}
+    .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-bottom:22px}
+    .kpi{background:white;border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:var(--shadow);display:flex;align-items:center;gap:18px;min-height:140px}
+    .kpi .icon{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;font-size:32px;flex:0 0 auto}
+    .kpi.blue .icon{background:#e9edff;color:#4f63ff}.kpi.green .icon{background:#dcfce7;color:#16a34a}.kpi.orange .icon{background:#ffedd5;color:#f97316}.kpi.red .icon{background:#fee2e2;color:#ef4444}
+    .kpi .label{font-size:14px;color:#405173;font-weight:800}.kpi .num{font-size:33px;font-weight:900;margin-top:5px;letter-spacing:-.03em}.kpi .sub{font-size:13px;color:var(--muted);margin-top:4px}
+    .layout-two{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:20px}
+    .card{background:white;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+    .card-pad{padding:22px}.card h3{margin:0 0 5px;font-size:18px}.desc{color:var(--muted);font-size:13px;margin:0}
+    .table-head{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .filters{display:grid;grid-template-columns:2fr 160px 130px auto;gap:14px;padding:18px 22px;border-bottom:1px solid var(--line);align-items:end}
+    .field{display:flex;flex-direction:column;gap:7px}.field label{font-size:12px;color:#405173;font-weight:800}
+    input,select{border:1px solid #d8dfec;background:white;border-radius:11px;padding:12px 13px;font-size:14px;outline:none;min-width:0}
+    input:focus,select:focus{border-color:#7c8cff;box-shadow:0 0 0 4px rgba(79,99,255,.10)}
+    button,.btn{border:0;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border-radius:11px;padding:12px 15px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+    button.secondary,.btn.secondary{background:white;color:#22304f;border:1px solid #d8dfec}button.green{background:linear-gradient(135deg,#16a34a,#22c55e)}button.red{background:#ef4444}
+    .table-wrap{overflow:auto}.table-wrap table{width:100%;border-collapse:separate;border-spacing:0;min-width:1240px}
+    th,td{padding:14px 14px;border-bottom:1px solid #edf1f7;text-align:left;white-space:nowrap;font-size:13px}th{background:#fbfcff;color:#405173;font-size:12px;text-transform:uppercase;letter-spacing:.03em;position:sticky;top:0;z-index:1;cursor:pointer}
+    tbody tr:hover{background:#f8fbff}.badge{display:inline-flex;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900}.ok{background:#dcfce7;color:#047857}.warn{background:#ffedd5;color:#c2410c}.err{background:#fee2e2;color:#b91c1c}
+    .qr-link{width:36px;height:36px;border-radius:10px;background:#f3f6ff;color:#4f63ff;border:1px solid #dbe2ff;display:grid;place-items:center;text-decoration:none}
+    .sync-card{padding:22px}.progress-ring{width:140px;height:140px;border-radius:50%;background:conic-gradient(var(--green) calc(var(--p)*1%), #edf1f7 0);display:grid;place-items:center;margin:10px auto 16px}
+    .progress-inner{width:94px;height:94px;border-radius:50%;background:white;display:grid;place-items:center;text-align:center;font-weight:900;font-size:25px}.progress-inner small{display:block;font-size:11px;color:var(--muted);font-weight:700}
+    .progress{height:12px;background:#e9edf5;border-radius:999px;overflow:hidden}.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green));transition:.25s}
+    .sync-lines{display:grid;gap:12px;margin-top:15px}.sync-line{display:flex;justify-content:space-between;color:#405173;font-size:14px}.sync-line b{color:#111827}
+    .config-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .import-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.import-tile{border:1px solid #dbe2ef;border-radius:15px;min-height:135px;background:#fbfcff;padding:18px;display:grid;place-items:center;text-align:center;position:relative;cursor:pointer}
+    .import-tile input{position:absolute;inset:0;opacity:0;cursor:pointer}.import-tile .big{font-size:42px;color:var(--blue);margin-bottom:8px}.import-tile b{display:block}.import-tile span{font-size:12px;color:var(--muted)}
+    .camera-box{margin-top:18px;border-radius:16px;overflow:hidden;background:#0f172a;display:none;position:relative}.camera-box.active{display:block}#qrVideo{width:100%;max-height:430px;object-fit:cover;display:block}.scan-frame{position:absolute;left:50%;top:50%;width:220px;height:220px;transform:translate(-50%,-50%);border:3px solid #22c55e;border-radius:20px;box-shadow:0 0 0 999px rgba(15,23,42,.45);pointer-events:none}.camera-actions{display:flex;gap:10px;padding:12px;background:#0f172a}
+    pre{background:#071633;color:#d1fae5;border-radius:16px;padding:18px;white-space:pre-wrap;overflow:auto;max-height:520px}
+    .mobile-tabbar{display:none}.drawer-overlay{display:none}#tabella th.sort-desc::after,#tabellaDashboard th.sort-desc::after{content:" ↓"}#tabella th.sort-asc::after,#tabellaDashboard th.sort-asc::after{content:" ↑"}
+    @media(max-width:1120px){.app{grid-template-columns:1fr}.sidebar{position:fixed;left:-290px;width:280px;z-index:60;transition:.25s}.hamb{display:inline-flex}.drawer-overlay.show{display:block;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:50}.sidebar.open{left:0}.kpis{grid-template-columns:repeat(2,1fr)}.layout-two{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}}
+    @media(max-width:720px){.topbar{height:auto;padding:14px 16px}.page-title h2{font-size:20px}.top-actions{display:none}.content{padding:16px 13px 96px}.kpis{grid-template-columns:1fr 1fr;gap:12px}.kpi{padding:16px;min-height:110px}.kpi .icon{width:48px;height:48px;font-size:22px}.kpi .num{font-size:24px}.filters{grid-template-columns:1fr;padding:16px}.config-grid{grid-template-columns:1fr 1fr}.import-grid{grid-template-columns:1fr}.table-head{flex-direction:column;align-items:flex-start}.mobile-tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:10px;right:10px;bottom:10px;background:rgba(255,255,255,.94);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:22px;padding:8px;box-shadow:0 18px 45px rgba(15,23,42,.18);z-index:40}.mobile-tabbar a{font-size:10px;text-decoration:none;color:#405173;display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:800}.mobile-tabbar .plus{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;display:grid;place-items:center;margin-top:-24px;font-size:25px}}
+  </style>
+</head>
+<body>
+<div id="overlay" class="drawer-overlay" onclick="toggleSidebar(false)"></div>
+<div class="app">
+  <aside id="sidebar" class="sidebar">
+    <div class="brand"><div class="logo">▦</div><div><h1>QR Manager</h1><p>Gestione Dispositivi</p></div></div>
+    <nav class="nav">
+      <a class="active" href="#" onclick="showPage('dashboardPage');return false;">🏠 Dashboard</a>
+      <a href="#" onclick="showPage('devicesPage');return false;">▣ Dispositivi</a>
+      <a href="#" onclick="showPage('importPage');return false;">▦ Importa QR Code</a>
+      <a href="#" onclick="showPage('syncPage');return false;">⟳ Sincronizzazione</a>
+      <a href="#" onclick="showPage('logPage');return false;">▤ Log Attività</a>
+    </nav>
+    <div class="side-footer">
+      <div class="userbox"><b>rasisnc</b><br><span style="color:#aab6d3;font-size:13px">Amministratore</span></div>
+      <a class="btn secondary" href="/download-db">Scarica DB</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:16px">
+        <button class="hamb" onclick="toggleSidebar(true)">☰</button>
+        <div class="page-title"><h2 id="pageTitle">Dashboard</h2><p id="pageSubtitle">Panoramica dispositivi</p></div>
+      </div>
+      <div class="top-actions"><div class="top-chip">📅 <span id="dateNow"></span></div><div class="top-chip">🔔 <b id="topErrors">0</b></div></div>
+    </header>
+
+    <div class="content">
+      <section id="dashboardPage" class="page-section active">
+        <div class="kpis">
+          <div class="kpi blue"><div class="icon">▯</div><div><div class="label">Dispositivi Totali</div><div class="num" id="kpiTotal">0</div><div class="sub">Tutti i dispositivi registrati</div></div></div>
+          <div class="kpi green"><div class="icon">✓</div><div><div class="label">Sincronizzati</div><div class="num" id="kpiUpdated">0</div><div class="sub">Aggiornati sync corrente</div></div></div>
+          <div class="kpi orange"><div class="icon">◷</div><div><div class="label">Da Sincronizzare</div><div class="num" id="kpiRemaining">0</div><div class="sub">Rimanenti sync corrente</div></div></div>
+          <div class="kpi red"><div class="icon">⚠</div><div><div class="label">Errori</div><div class="num" id="kpiErrors">0</div><div class="sub">Errori sync corrente</div></div></div>
+        </div>
+        <div id="dashboardList"></div>
+      </section>
+
+      <section id="devicesPage" class="page-section">
+        <div id="devicesList"></div>
+      </section>
+
+      <section id="importPage" class="page-section">
+        <div class="card card-pad">
+          <h3>Importa QR Code</h3>
+          <p class="desc">Carica immagine, scansiona da fotocamera o importa tramite link.</p>
+          <div class="import-grid" style="margin-top:18px">
+            <label class="import-tile"><input id="qrFile" type="file" accept="image/*"><div><div class="big">⇧</div><b>Carica immagine</b><span>PNG, JPG, WEBP</span></div></label>
+            <button class="import-tile" onclick="startCameraScanner()" style="color:var(--text);background:#fbfcff;box-shadow:none"><div><div class="big">📷</div><b>Scansiona QR</b><span>Fotocamera smartphone</span></div></button>
+            <div class="import-tile" style="display:block;text-align:left"><div class="big" style="text-align:center">🔗</div><b>Importa da link</b><input id="qrUrl" style="margin-top:10px;width:100%" placeholder="https://..."><button style="width:100%;margin-top:10px" onclick="importUrlFromInput()">Importa link</button></div>
+          </div>
+          <div class="actions"><button onclick="readQrFromImage()">Leggi immagine QR e importa</button></div>
+          <div id="importStatus" class="desc" style="margin-top:12px">Import QR pronto.</div>
+          <div id="cameraBox" class="camera-box">
+            <video id="qrVideo" playsinline></video><div class="scan-frame"></div>
+            <div class="camera-actions"><button class="secondary" onclick="stopCameraScanner()">Ferma fotocamera</button><button class="secondary" onclick="switchCamera()">Cambia camera</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="syncPage" class="page-section">
+        <div class="layout-two">
+          <div class="card sync-card">
+            <h3>Stato Sincronizzazione</h3><p class="desc">Controllo live della sincronizzazione intelligente.</p>
+            <div class="progress-ring" id="ring" style="--p:0"><div class="progress-inner"><span id="syncPercent">0%</span><small>Sync</small></div></div>
+            <div class="progress"><div id="syncBar"></div></div>
+            <div class="sync-lines">
+              <div class="sync-line"><span>Elaborati</span><b id="syncChecked">0/0</b></div>
+              <div class="sync-line"><span>Aggiornati</span><b id="syncUpdated">0</b></div>
+              <div class="sync-line"><span>Saltati</span><b id="syncSkipped">0</b></div>
+              <div class="sync-line"><span>Da cache</span><b id="syncCached">0</b></div>
+              <div class="sync-line"><span>Errori</span><b id="syncErrors">0</b></div>
+            </div>
+            <div class="config-grid">
+              <label>Batch<input id="batchSize" type="number" value="25"></label><label>Pausa ms<input id="delayMs" type="number" value="1500"></label><label>Cache ore<input id="cacheHours" type="number" value="12"></label><label>Retry<input id="maxRetries" type="number" value="2"></label>
+            </div>
+            <div class="actions"><button class="green" onclick="startSmartSync(false)">Sincronizza ora</button><button class="secondary" onclick="startSmartSync(true)">Riprendi</button><button class="secondary" onclick="stopSmartSync()">Ferma</button><button class="secondary" onclick="clearCache()">Svuota cache</button></div>
+            <p id="syncLiveStatus" class="desc" style="margin-top:12px">Sync pronta.</p>
+          </div>
+
+          <div class="card card-pad">
+            <h3>Programmazione automatica</h3><p class="desc">Imposta sincronizzazione giornaliera, settimanale o mensile.</p>
+            <div class="config-grid" style="grid-template-columns:1fr 1fr">
+              <label>Frequenza<select id="scheduleFrequency"><option value="daily">Giornaliera</option><option value="weekly">Settimanale</option><option value="monthly">Mensile</option></select></label>
+              <label>Orario<input id="scheduleTime" type="time" value="01:00"></label>
+              <label>Giorno settimana<select id="scheduleDayOfWeek"><option value="1">Lunedì</option><option value="2">Martedì</option><option value="3">Mercoledì</option><option value="4">Giovedì</option><option value="5">Venerdì</option><option value="6">Sabato</option><option value="0">Domenica</option></select></label>
+              <label>Giorno mese<input id="scheduleDayOfMonth" type="number" min="1" max="31" value="1"></label>
+            </div>
+            <div class="actions"><label style="display:flex;align-items:center;gap:8px;font-weight:800"><input id="scheduleEnabled" type="checkbox" style="width:auto"> Attiva</label><button onclick="saveSchedule()">Salva programmazione</button></div>
+            <p id="scheduleStatus" class="desc" style="margin-top:12px">Programmazione non caricata.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="logPage" class="page-section">
+        <div class="card card-pad"><h3>Log Attività</h3><p class="desc">Eventi recenti, importazioni e sincronizzazioni.</p><pre id="logBox">Nessuna attività recente.</pre></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<nav class="mobile-tabbar">
+  <a href="#" onclick="showPage('dashboardPage');return false;">🏠<span>Home</span></a>
+  <a href="#" onclick="showPage('devicesPage');return false;">▣<span>Dati</span></a>
+  <a href="#" onclick="showPage('importPage');return false;"><span class="plus">＋</span></a>
+  <a href="#" onclick="showPage('syncPage');return false;">⟳<span>Sync</span></a>
+  <a href="#" onclick="showPage('logPage');return false;">▤<span>Log</span></a>
+</nav>
+
+<script>
+function esc(v){return String(v??'').replace(/[&<>'"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
+function toggleSidebar(open){document.getElementById('sidebar').classList.toggle('open',open);document.getElementById('overlay').classList.toggle('show',open);}
+function showPage(id){
+  document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  const titles={dashboardPage:['Dashboard','Panoramica dispositivi'],devicesPage:['Dispositivi','Lista dispositivi completa'],importPage:['Importa QR Code','Upload, fotocamera e link'],syncPage:['Sincronizzazione','Stato e programmazione'],logPage:['Log Attività','Eventi recenti']};
+  document.getElementById('pageTitle').textContent=titles[id]?.[0]||'Dashboard';
+  document.getElementById('pageSubtitle').textContent=titles[id]?.[1]||'';
+  document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('active'));
+  const idx={dashboardPage:0,devicesPage:1,importPage:2,syncPage:3,logPage:4}[id]||0;
+  document.querySelectorAll('.nav a')[idx]?.classList.add('active');
+  toggleSidebar(false); window.scrollTo({top:0,behavior:'smooth'});
+}
+function tableCard(title,targetId){
+ return `<div class="card"><div class="table-head"><div><h3>${title}</h3><p class="desc">Ricerca e filtro dispositivi</p></div><button class="secondary" onclick="loadData()">Aggiorna</button></div>
+ <div class="filters"><div class="field"><label>Ricerca</label><input class="searchMirror" placeholder="Cerca matricola, P.IVA, cliente o link..."></div><div class="field"><label>Mese Ultima VP</label><select class="monthMirror"><option value="">Tutti</option><option value="01">Gennaio</option><option value="02">Febbraio</option><option value="03">Marzo</option><option value="04">Aprile</option><option value="05">Maggio</option><option value="06">Giugno</option><option value="07">Luglio</option><option value="08">Agosto</option><option value="09">Settembre</option><option value="10">Ottobre</option><option value="11">Novembre</option><option value="12">Dicembre</option></select></div><div class="field"><label>Anno VP</label><input class="yearMirror" type="number" placeholder="Tutti"></div><div class="field"><label>Azioni</label><button class="secondary applyMirror">Applica filtri</button></div></div>
+ <div class="table-wrap"><table id="${targetId}"><thead><tr><th>Matricola</th><th>Stato</th><th>Ultima VP</th><th>Risultato VP</th><th>PIVA Lab</th><th>CF Tecnico</th><th>Ultima Trasmissione</th><th>Versione SW</th><th>P.IVA</th><th>Cliente</th><th>QR</th><th>Ultima Sync</th></tr></thead><tbody></tbody></table></div></div>`;
+}
+document.getElementById('dashboardList').innerHTML=tableCard('Lista Dispositivi','tabellaDashboard');
+document.getElementById('devicesList').innerHTML=tableCard('Lista Dispositivi','tabella');
+let filters={q:'',month:'',year:''};
+function bindFilters(){
+ document.querySelectorAll('.applyMirror').forEach(btn=>btn.onclick=()=>{const wrap=btn.closest('.card');filters.q=wrap.querySelector('.searchMirror').value;filters.month=wrap.querySelector('.monthMirror').value;filters.year=wrap.querySelector('.yearMirror').value;document.querySelectorAll('.searchMirror').forEach(i=>i.value=filters.q);document.querySelectorAll('.monthMirror').forEach(i=>i.value=filters.month);document.querySelectorAll('.yearMirror').forEach(i=>i.value=filters.year);loadData();});
+ document.querySelectorAll('.searchMirror,.yearMirror').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')i.closest('.card').querySelector('.applyMirror').click();}));
+}
+bindFilters();
+function statoBadge(s){const v=String(s||'');const l=v.toLowerCase(); if(l.includes('errore')||l.includes('non')) return `<span class="badge err">${esc(v||'Errore')}</span>`; if(l.includes('trasmette')||l.includes('ok')) return `<span class="badge ok">${esc(v||'OK')}</span>`; return `<span class="badge warn">${esc(v||'Da Sync')}</span>`;}
+async function loadData(){
+ const params=new URLSearchParams(); params.set('q',filters.q); if(filters.month)params.set('vpMonth',filters.month); if(filters.year)params.set('vpYear',filters.year);
+ const res=await fetch('/api/results?'+params.toString()); const rows=await res.json();
+ const html=rows.map(r=>`<tr><td><b>${esc(r.matricola)}</b></td><td>${statoBadge(r.stato)}</td><td>${esc(r.data_vp)}</td><td>${esc(r.risultato_vp)}</td><td>${esc(r.piva_laboratorio)}</td><td>${esc(r.cf_tecnico)}</td><td>${esc(r.ultima_trasmissione)}</td><td>${esc(r.versione_software)}</td><td>${esc(r.partita_iva)}</td><td>${esc(r.denominazione)}</td><td>${r.link_qr?`<a class="qr-link" target="_blank" href="${esc(r.link_qr)}">▦</a>`:''}</td><td>${esc(r.last_sync)}</td></tr>`).join('');
+ document.querySelector('#tabellaDashboard tbody').innerHTML=html; document.querySelector('#tabella tbody').innerHTML=html;
+ document.getElementById('kpiTotal').textContent=rows.length.toLocaleString('it-IT');
+}
+async function importQrUrl(url){const st=document.getElementById('importStatus');st.textContent='Importazione in corso...';const res=await fetch('/api/import-url',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});const data=await res.json();document.getElementById('logBox').textContent=JSON.stringify(data,null,2);if(!res.ok||!data.ok){st.textContent='Errore import: '+(data.error||'errore');return;}st.textContent=data.message||'QR importato';filters.q=data.saved?.matricola||'';await loadData();}
+async function importUrlFromInput(){const url=document.getElementById('qrUrl').value.trim();if(!url){document.getElementById('importStatus').textContent='Incolla prima un link.';return;}await importQrUrl(url);}
+function readQrFromImage(){const file=document.getElementById('qrFile').files?.[0];const st=document.getElementById('importStatus');if(!file){st.textContent='Seleziona immagine QR.';return;}const img=new Image();img.onload=async()=>{const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;const ctx=c.getContext('2d');ctx.drawImage(img,0,0);const d=ctx.getImageData(0,0,c.width,c.height);const code=jsQR(d.data,d.width,d.height);if(!code?.data){st.textContent='QR non letto.';return;}document.getElementById('qrUrl').value=code.data;await importQrUrl(code.data);};img.src=URL.createObjectURL(file);}
+let qrCameraStream=null,qrCameraAnimation=null,currentFacingMode='environment',cameraScanning=false;
+async function startCameraScanner(){const st=document.getElementById('importStatus'),v=document.getElementById('qrVideo'),box=document.getElementById('cameraBox');try{stopCameraScanner(false);if(!navigator.mediaDevices?.getUserMedia)throw new Error('fotocamera disponibile solo con HTTPS o localhost');qrCameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:currentFacingMode},audio:false});v.srcObject=qrCameraStream;await v.play();box.classList.add('active');cameraScanning=true;st.textContent='Inquadra QR Code.';scanCameraFrame();}catch(e){st.textContent='Errore fotocamera: '+e.message;}}
+function stopCameraScanner(t=true){cameraScanning=false;if(qrCameraAnimation)cancelAnimationFrame(qrCameraAnimation);qrCameraStream?.getTracks().forEach(x=>x.stop());qrCameraStream=null;document.getElementById('cameraBox')?.classList.remove('active');if(t)document.getElementById('importStatus').textContent='Fotocamera fermata.'}
+async function switchCamera(){currentFacingMode=currentFacingMode==='environment'?'user':'environment';await startCameraScanner();}
+function scanCameraFrame(){const v=document.getElementById('qrVideo');if(!cameraScanning||!v||v.readyState!==v.HAVE_ENOUGH_DATA){qrCameraAnimation=requestAnimationFrame(scanCameraFrame);return;}const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;const ctx=c.getContext('2d');ctx.drawImage(v,0,0);const d=ctx.getImageData(0,0,c.width,c.height);const code=jsQR(d.data,d.width,d.height);if(code?.data){stopCameraScanner(false);document.getElementById('qrUrl').value=code.data;importQrUrl(code.data);return;}qrCameraAnimation=requestAnimationFrame(scanCameraFrame);}
+function getSyncConfig(){return{batchSize:+document.getElementById('batchSize').value||25,delayMs:+document.getElementById('delayMs').value||1500,cacheHours:+document.getElementById('cacheHours').value||12,maxRetries:+document.getElementById('maxRetries').value||2};}
+async function startSmartSync(resume){const res=await fetch('/api/sync/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...getSyncConfig(),resume})});document.getElementById('logBox').textContent=JSON.stringify(await res.json(),null,2);refreshSyncStatus();}
+async function stopSmartSync(){const res=await fetch('/api/sync/stop',{method:'POST'});document.getElementById('logBox').textContent=JSON.stringify(await res.json(),null,2);}
+async function clearCache(){const res=await fetch('/api/cache/clear',{method:'POST'});document.getElementById('logBox').textContent=JSON.stringify(await res.json(),null,2);}
+async function refreshSyncStatus(){const res=await fetch('/api/sync/status');const s=await res.json();const p=s.percent||0;document.getElementById('syncPercent').textContent=p+'%';document.getElementById('ring').style.setProperty('--p',p);document.getElementById('syncBar').style.width=p+'%';document.getElementById('syncChecked').textContent=`${s.checked||0}/${s.total||0}`;document.getElementById('syncUpdated').textContent=s.updated||0;document.getElementById('syncSkipped').textContent=s.skipped||0;document.getElementById('syncCached').textContent=s.cached||0;document.getElementById('syncErrors').textContent=s.errors||0;document.getElementById('kpiUpdated').textContent=s.updated||0;document.getElementById('kpiRemaining').textContent=Math.max((s.total||0)-(s.checked||0),0);document.getElementById('kpiErrors').textContent=s.errors||0;document.getElementById('topErrors').textContent=s.errors||0;document.getElementById('syncLiveStatus').textContent=(s.running?'In corso':'Pronto')+' - '+(s.lastMessage||'');if(s.lastSamples)document.getElementById('logBox').textContent=JSON.stringify({progresso:`${s.checked||0}/${s.total||0}`,aggiornati:s.updated,errori:s.errors,ultimi_eventi:s.lastSamples},null,2);}
+async function loadSchedule(){try{const r=await fetch('/api/schedule');const c=await r.json();document.getElementById('scheduleEnabled').checked=!!c.enabled;document.getElementById('scheduleFrequency').value=c.frequency||'daily';document.getElementById('scheduleTime').value=c.time||'01:00';document.getElementById('scheduleDayOfWeek').value=c.dayOfWeek||'1';document.getElementById('scheduleDayOfMonth').value=c.dayOfMonth||'1';document.getElementById('scheduleStatus').textContent=c.enabled?`Attiva: ${c.frequency} alle ${c.time}`:'Programmazione disattivata.';}catch(e){}}
+async function saveSchedule(){const payload={enabled:document.getElementById('scheduleEnabled').checked,frequency:document.getElementById('scheduleFrequency').value,time:document.getElementById('scheduleTime').value,dayOfWeek:document.getElementById('scheduleDayOfWeek').value,dayOfMonth:document.getElementById('scheduleDayOfMonth').value,...getSyncConfig()};const res=await fetch('/api/schedule/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});document.getElementById('logBox').textContent=JSON.stringify(await res.json(),null,2);loadSchedule();}
+let sortDirections={};function sortTable(id,n){const t=document.getElementById(id);if(!t)return;const tb=t.tBodies[0];const rows=[...tb.querySelectorAll('tr')];const dir=sortDirections[id+n]==='desc'?'asc':'desc';sortDirections[id+n]=dir;rows.sort((a,b)=>{let av=a.children[n]?.innerText||'',bv=b.children[n]?.innerText||'';return dir==='desc'?bv.localeCompare(av,'it',{numeric:true}):av.localeCompare(bv,'it',{numeric:true});});rows.forEach(r=>tb.appendChild(r));}
+document.addEventListener('click',e=>{const th=e.target.closest('th');if(!th)return;const table=th.closest('table');if(table)sortTable(table.id,[...th.parentNode.children].indexOf(th));});
+document.getElementById('dateNow').textContent=new Date().toLocaleString('it-IT');
+loadData();loadSchedule();refreshSyncStatus();setInterval(refreshSyncStatus,2000);
+</script>
+</body>
+</html>
