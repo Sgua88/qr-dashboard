@@ -1,0 +1,23 @@
+{
+  "https://ivaservizi.agenziaentrate.gov.it/ser/mobile/fiscalizzazione/v1/stato/f08d8db9-aa24-4ca6-9672-837c40f921fc?seed=8997": {
+    "savedAt": "2026-06-06T19:12:53.689Z",
+    "payload": {
+      "statusCode": 200,
+      "data": {
+        "matricola": "99IEB106345",
+        "stato": "TRASMETTE I DATI ALL'AGENZIA",
+        "data_vp": "15/04/2025",
+        "risultato_vp": "03 - Verificazione periodica con esito positivo",
+        "piva_laboratorio": "01919040343",
+        "cf_tecnico": "SNTVTI**********",
+        "ultima_trasmissione": "05/06/2026",
+        "versione_software": "10.02",
+        "partita_iva": "01464770450",
+        "denominazione": "PIZZERIA T&D DI DAVIDE FUSANI E TATIANA FRANCIOSI S.N.C.",
+        "raw_preview": "Dettaglio Stato Fiscalizzazione Dispositivo Agenzia delle Entrate Fatture e Corrispettivi Dettaglio Stato Fiscalizzazione Dispositivo Matricola: 99IEB106345 Stato: TRASMETTE I DATI ALL'AGENZIA Informazioni Dispositivo Marca: 99 Descrizione Marca: EPSON ITALIA S.P.A. Modello: EB Descrizione Modello: FP-81II RT Tipo Sigillo: ETICHETTA AUTOADESIVA Ambito di Utilizzo: I Riferimento di Approvazione Numero: 2018/138938 Data: 06/07/2018 Ultima Verificazione Periodica Data: 15/04/2025 03 - Verificazione periodica con esito positivo PIVA Laboratorio: 01919040343 CF Tecnico: SNTVTI********** Ultima Trasmissione da Dispositivo Data: 05/06/2026 Ultima versione software del dispositivo Data Invio Manutenzione: 15/04/2025 Versione: 10.02 Data Rilascio: 25/10/2023 Autorizzazione: AUTOCERTIFICATA Ultima versione software del modello Versione: 10.02 Data Rilascio: 25/10/2023 Autorizzazione: AUTOCERTIFICATA Esercente Partita IVA: 01464770450 Denominazione: PIZZERIA T&D DI DAVIDE FUSANI E TATIANA FRANCIO"
+      },
+      "rawPreview": "Dettaglio Stato Fiscalizzazione Dispositivo Agenzia delle Entrate Fatture e Corrispettivi Dettaglio Stato Fiscalizzazione Dispositivo Matricola: 99IEB106345 Stato: TRASMETTE I DATI ALL'AGENZIA Informazioni Dispositivo Marca: 99 Descrizione Marca: EPSON ITALIA S.P.A. Modello: EB Descrizione Modello: FP-81II RT Tipo Sigillo: ETICHETTA AUTOADESIVA Ambito di Utilizzo: I Riferimento di Approvazione Numero: 2018/138938 Data: 06/07/2018 Ultima Verificazione Periodica Data: 15/04/2025 03 - Verificazione periodica con esito positivo PIVA Laboratorio: 01919040343 CF Tecnico: SNTVTI********** Ultima Trasmissione da Dispositivo Data: 05/06/2026 Ultima versione software del dispositivo Data Invio Manutenzione: 15/04/2025 Versione: 10.02 Data Rilascio: 25/10/2023 Autorizzazione: AUTOCERTIFICATA Ultima v",
+      "fromCache": false
+    }
+  }
+}

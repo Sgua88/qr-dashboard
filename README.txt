@@ -27,3 +27,8 @@ Schermata aggiornata come da immagine: 3 riquadri grandi affiancati su desktop e
 FIX FILTRI V2
 - Aggiunto pulsante Reset Filtri vicino ad Applica Filtri nel template dinamico dei filtri.
 - Il campo ricerca funziona premendo Invio dalla tastiera.
+
+
+FIX INVIO V3
+- Il tasto Invio nel campo ricerca è attivo subito al caricamento pagina.
+- Non serve più premere prima Applica Filtri o Reset Filtri.
