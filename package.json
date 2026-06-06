@@ -1,11 +1,9 @@
 {
-  "name": "qr-dashboard-finale-moderna-sezioni",
+  "name": "qr-final-paginazione-100",
   "version": "1.0.0",
-  "description": "QR Manager moderno responsive con sezioni separate",
+  "description": "QR Manager con paginazione 100 record, sezioni separate, login e sync intelligente",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
+  "scripts": { "start": "node server.js" },
   "dependencies": {
     "express": "^4.19.2",
     "node-cron": "^3.0.3",
